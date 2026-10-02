@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ai-lab-verification
+spec:
+  template:
+    spec:
+      containers:
+      - name: pytorch-cuda-container
+        image: pytorch/pytorch:2.1.2-cuda11.8-cudnn8-runtime
+        command: ["python", "-c"]
+        args:
+          - |
+            import torch
+            print("=== Cloud-Style AI Pod Verification ===")
+            print("CUDA available:", torch.cuda.is_available())
+            if torch.cuda.is_available():
+                print("GPU:", torch.cuda.get_device_name(0))
+                x = torch.rand(1024, 1024, device='cuda')
+                y = torch.mm(x, x)
+                print("Matmul OK, y shape:", y.shape)
+            else:
+                print("Running on CPU mode.")
+      restartPolicy: Never
+  backoffLimit: 1
